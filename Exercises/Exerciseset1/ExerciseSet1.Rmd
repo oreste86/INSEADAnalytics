@@ -136,10 +136,18 @@ We can also transpose the matrix of returns to create a new "horizontal" matrix.
 
 **Your Answers here:**
 <br>
+Answer1: <br>
+nrow(transposedData) --> number of rows; <br>
+ncol(transposedData) --> number of columns.
 <br>
+Answer2:
 <br>
+```{r echo=FALSE, comment=NA, warning=FALSE, message=FALSE,results='asis',fig.align='center', fig=TRUE}
+transposed_port = apply(transposedData,2,mean)
+names(transposed_port) <- colnames(transposedData)
+pnl_plot(transposed_port)
+```
 <br>
-
 <hr>
 <hr>
 
@@ -154,7 +162,9 @@ This is an important step and will get you to think about the overall process on
 
 **Your Answers here:**
 <br>
+Answer1: modify startDate in dataSet1.R to 2001-01-01 and run again with command source("dataSet1.R")
 <br>
+Answer2:modify mytickers in dataSet1.R to add new stocks (e.g. YHOO), run again with command source("dataSet1.R"). Then we can repeat function apply(StockReturns,1,mean) to compute portfolio return since it's equal weighted.
 <br>
 <br>
 
