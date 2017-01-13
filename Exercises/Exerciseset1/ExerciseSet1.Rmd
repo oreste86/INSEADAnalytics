@@ -198,6 +198,7 @@ myData + StockReturns[1:40,]
 
 **Your Answers here:**
 <br>
+Answer1: Result is 20 because for each row myData is not equal to StockReturns. myData is a vector where each element is a concatenation of date, yahoo and apple stocks while StockReturns has each value in a different column. To create similar structure we should use "," as separator when importing twentydays.csv
 <br>
 <br>
 <br>
