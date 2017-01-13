@@ -142,7 +142,9 @@ ncol(transposedData) --> number of columns.
 <br>
 Answer2:
 <br>
+
 ```{r echo=FALSE, comment=NA, warning=FALSE, message=FALSE,results='asis',fig.align='center', fig=TRUE}
+transposedData = t(StockReturns)
 transposed_port = apply(transposedData,2,mean)
 names(transposed_port) <- colnames(transposedData)
 pnl_plot(transposed_port)
