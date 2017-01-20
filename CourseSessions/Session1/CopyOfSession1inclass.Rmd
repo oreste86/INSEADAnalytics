@@ -150,6 +150,8 @@ The correlation matrix does not look pretty for now, but we will see example way
 
 **Your Answers here:**
 <br>
+Answer2: After manipulating the string with gsub, average is: `r mean(ProjectData[,"Q1_3_The.brand.of.boat.I.buy.says.a.lot.about.who.I.am"])`
+
 <br>
 <br>
 <br>
