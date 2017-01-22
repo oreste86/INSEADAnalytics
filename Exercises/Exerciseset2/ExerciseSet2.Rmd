@@ -159,10 +159,32 @@ iprint.df(show_data, scale=TRUE)
 
 **Answers**
 
+* 1. We need at least 6 factors. With 6 factors we explain 52.29% of the variance as we can see from following table <br>
+`r Variance_Explained_Table[,"Cumulative pct of explained variance"]`
+* 2. Highest values are 0.93 as we can see in following vector: <br>
+`r Rotated_Factors[,"comp 1"]`
 *
-*
-*
-*
+*4. 
+Crisis scree plot and principal components before crisis:
+```{r echo=TRUE, tidy=TRUE}
+before_crisis_data = futures_data[ as.Date(rownames(futures_data)) < "2007-10-01", ]
+before_crisis_components <- PCA(before_crisis_data, graph=FALSE)
+before_crisis_table <- before_crisis_components$eig
+colnames(before_crisis_table) <- c("Eigenvalue","Pct of explained variance", "Cumulative pct of explained variance")
+eigen_before_crisis <- before_crisis_table[,"Eigenvalue"]
+plot(eigen_before_crisis, col="red")
+lines(rep(1,length(eigen_before_crisis)),col="green")
+```
+Crisis scree plot and principal components during crisis:
+```{r echo=TRUE, tidy=TRUE}
+crisis_data = futures_data[ as.Date(rownames(futures_data)) > "2007-10-01" & as.Date(rownames(futures_data)) < "2009-03-01" , ]
+crisis_components <- PCA(crisis_data, graph=FALSE)
+crisis_table <- crisis_components$eig
+colnames(crisis_table) <- c("Eigenvalue","Pct of explained variance", "Cumulative pct of explained variance")
+eigen_crisis <- crisis_table[,"Eigenvalue"]
+plot(eigen_crisis, col="red")
+lines(rep(1,length(eigen_crisis)),col="green")
+```
 *
 *
 *
