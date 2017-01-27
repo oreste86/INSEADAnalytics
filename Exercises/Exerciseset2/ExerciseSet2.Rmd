@@ -161,9 +161,19 @@ iprint.df(show_data, scale=TRUE)
 
 * 1. We need at least 6 factors. With 6 factors we explain 52.29% of the variance as we can see from following table <br>
 `r Variance_Explained_Table[,"Cumulative pct of explained variance"]`
-* 2. Highest values are 0.93 as we can see in following vector: <br>
+* 2. Highest values are 0.93 as we can see in following vector, showing the values of comp1: <br>
 `r Rotated_Factors[,"comp 1"]`
-*
+<br>
+*3. Comp1: North American Bonds; <br>
+    Comp2: Currencies; <br>
+    Comp3: European Stock Indexes; <br>
+    Comp4: North American Stock Indexes; <br>
+    Comp5: European Bonds; <br<
+    Comp6: Oil; <br>
+    Comp7: Metals; <br>
+    Comp8: Agricultural Commodities; <br>
+    Comp9: Precious Metals; <br>
+    Comp10: Asian Stock Indexes; <br>
 *4. 
 Crisis scree plot and principal components before crisis:
 ```{r echo=TRUE, tidy=TRUE}
@@ -185,12 +195,39 @@ eigen_crisis <- crisis_table[,"Eigenvalue"]
 plot(eigen_crisis, col="red")
 lines(rep(1,length(eigen_crisis)),col="green")
 ```
-*
-*
-*
-*
-*
-*
+*<br>
+* 5. Comparing Components before and during crisis, we found several differences. <br>
+Before Crisis: <br>
+```{r echo=TRUE, tidy=TRUE}
+before_corused = cor(before_crisis_data[,apply(before_crisis_data!=0,2,sum) > 10, drop=F])
+Rotated_Results<-principal(before_corused, nfactors=20, rotate="varimax",score=TRUE)
+Rotated_Factors<-round(Rotated_Results$loadings,2)
+Rotated_Factors<-as.data.frame(unclass(Rotated_Factors))
+colnames(Rotated_Factors)<-paste("comp",1:ncol(Rotated_Factors),sep=" ")
+ 
+sorted_rows <- sort(Rotated_Factors[,1], decreasing = TRUE, index.return = TRUE)$ix
+Rotated_Factors <- Rotated_Factors[sorted_rows,]
+Rotated_Factors[abs(Rotated_Factors) < 0.3]<-NA
+show_data_before <- Rotated_Factors 
+iprint.df(show_data_before, scale=TRUE)
+```
+<br> During Crisis: <br>
+```{r echo=TRUE, tidy=TRUE}
+crisis_corused = cor(crisis_data[,apply(crisis_data!=0,2,sum) > 10, drop=F])
+Rotated_Results<-principal(crisis_corused, nfactors=20, rotate="varimax",score=TRUE)
+Rotated_Factors<-round(Rotated_Results$loadings,2)
+Rotated_Factors<-as.data.frame(unclass(Rotated_Factors))
+colnames(Rotated_Factors)<-paste("comp",1:ncol(Rotated_Factors),sep=" ")
+ 
+sorted_rows <- sort(Rotated_Factors[,1], decreasing = TRUE, index.return = TRUE)$ix
+Rotated_Factors <- Rotated_Factors[sorted_rows,]
+Rotated_Factors[abs(Rotated_Factors) < 0.3]<-NA
+show_data_crisis <- Rotated_Factors 
+iprint.df(show_data_crisis, scale=TRUE)
+```
+<br>
+
+We can see that components weigths are quite stable even during the crisis, even though some weights change a little bit. Generally speaking group of commodities keep to be correlated in the same way before and during the crisis. <br>
 
 # A Simple Futures Trend Following Strategy
 
@@ -252,16 +289,34 @@ How does this compare with **existing CTA products** such as [this one from Soci
 
 **Answers**
 
-*
-*
-*
-*
-*
-*
-*
-*
-*
-*
+* 1. The code above calculates the moving averages using function "ma" with different windows defined by the vector "MAfreq". This vector is used both to define the lenght to be used and how many different values will be used.
+Averages are scaled to obtain weights with total sum of 1 each day. Then weights are multiplied by futures prices to define how much to invest on each future each day. Finally, cumulative result is calculated as sum cross-future for each day. <br>
+* 2.  Trying to use a WMA instead of a normal MA, we can obtain following performances:
+
+```{r echo=TRUE, tidy=TRUE}
+signal_used = 0*futures_data # just initialize the trading signal to be 0
+# Take many moving Average (MA) Signals and let them "vote" with their sign (+-1, e.g. long or short vote, for each signal)
+MAfreq <-seq(10,250,by=20)
+for (iter in 1:length(MAfreq))
+  signal_used = signal_used + apply(futures_data,2, function(r) WMA(r,MAfreq[iter],wts=1:MAfreq[iter]))
+# Now make sure we invest $1 every day (so the sum of the absolute values of the weights is 1 every day)
+signal_used[is.na(signal_used)] <- 0
+signal_used = t(apply(signal_used,1,function(r) {
+  res = r  
+  if ( sum(abs(r)) !=0 )
+    res = r/sum(abs(r))
+  res
+}))
+colnames(signal_used) <- colnames(futures_data)
+# Now create the returns of the strategy for each futures time series
+strategy_by_future <- scrub(shift(signal_used,2)*futures_data) # signal 2 days ago
+# finally, this is our futures trend following strategy
+trading_strategy2 = apply(strategy_by_future,1,sum)
+names(trading_strategy2) <- rownames(futures_data)
+```
+```{r}
+iplot.pnl(trading_strategy2)
+```
 
 # A class competition
 
